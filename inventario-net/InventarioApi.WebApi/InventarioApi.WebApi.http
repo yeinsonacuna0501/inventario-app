@@ -1,0 +1,6 @@
+@InventarioApi.WebApi_HostAddress = http://localhost:5008
+
+GET {{InventarioApi.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
