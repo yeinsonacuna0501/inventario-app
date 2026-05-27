@@ -83,10 +83,10 @@ Conectar a SQL Developer con usuario `system` y ejecutar los scripts en orden:
 
 ```sql
 -- Paso 1: crear tabla, secuencia e índices
-@database/01_create_schema.sql
+@database/01_crear_esquema.sql
 
 -- Paso 2: insertar datos de prueba
-@database/02_seed_data.sql
+@database/02_insertar_datos.sql
 ```
 
 ### Esquema creado
