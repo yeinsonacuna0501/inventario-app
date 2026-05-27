@@ -1,0 +1,93 @@
+<div class="card" style="padding: 1.5rem; max-width: 1200px; margin: 1.5rem auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); overflow: hidden;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h2 style="margin: 0; color: #0f172a; font-size: 1.6rem; font-weight: 700; line-height: 1.2;">Sistema de Control de Inventarios</h2>
+    </div>
+    <button mat-raised-button color="primary" (click)="abrirFormularioNuevo()" style="background-color: #10b981; color: white; white-space: nowrap;">
+      <mat-icon>add</mat-icon> Registrar Producto
+    </button>
+  </div>
+
+  <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+    <mat-form-field appearance="outline" style="flex: 1; min-width: 250px; width: 100%;">
+      <mat-label>Buscar por nombre</mat-label>
+      <input matInput [ngModel]="filtroNombre()" (ngModelChange)="filtroNombre.set($event); buscar()" placeholder="Ej: Monitor..." />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" style="width: 100%; max-width: 240px; min-width: 200px; flex: 1;">
+      <mat-label>Fecha Registro</mat-label>
+      <input matInput [matDatepicker]="picker" [ngModel]="filtroFecha()" (ngModelChange)="filtroFecha.set($event); buscar()">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    
+    <button mat-stroked-button (click)="limpiar()" style="height: 56px; margin-top: -4px; min-width: 120px;">
+      <mat-icon>filter_list_off</mat-icon> Limpiar
+    </button>
+  </div>
+
+  <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem;">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z0" style="width: 100%; min-width: 850px;">
+      
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef style="color: #64748b; font-weight: 600; width: 60px;">ID</th>
+        <td mat-cell *matCellDef="let producto" style="color: #64748b;">{{ producto.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef style="font-weight: 600; min-width: 150px;">Nombre</th>
+        <td mat-cell *matCellDef="let producto"><strong style="color: #0f172a;">{{ producto.nombre }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="descripcion">
+        <th mat-header-cell *matHeaderCellDef style="font-weight: 600; min-width: 200px;">Descripción</th>
+        <td mat-cell *matCellDef="let producto">
+          <div style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #475569;">
+            {{ producto.descripcion }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell *matHeaderCellDef style="font-weight: 600; width: 110px;">Stock</th>
+        <td mat-cell *matCellDef="let producto">
+          <span [style.color]="producto.cantidad < 5 ? '#ef4444' : '#10b981'" style="font-weight: 700; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block; white-space: nowrap;">
+            {{ producto.cantidad }} uds
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="precio">
+        <th mat-header-cell *matHeaderCellDef style="font-weight: 600; width: 130px;">Precio</th>
+        <td mat-cell *matCellDef="let producto" style="font-weight: 600; color: #0f172a; white-space: nowrap;">{{ producto.precio | currency:'USD' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef style="text-align: center; font-weight: 600; width: 210px;">Acciones</th>
+        <td mat-cell *matCellDef="let producto">
+          <div style="display: flex; gap: 0.4rem; justify-content: center; align-items: center;">
+            
+            <button mat-icon-button color="primary" (click)="verProducto(producto)" matTooltip="Ver Detalles" style="color: #0284c7;">
+              <mat-icon>visibility</mat-icon>
+            </button>
+
+            <button mat-icon-button color="primary" (click)="abrirFormularioEditar(producto)" matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            
+            <button mat-flat-button color="warn" [disabled]="producto.cantidad <= 0" (click)="descontarStock(producto.id)" style="border-radius: 20px; padding: 0 12px; height: 32px; font-size: 0.85rem;">
+              <mat-icon style="font-size: 16px; width: 16px; height: 16px; margin-right: 4px;">remove</mat-icon> Descontar
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnasDefinidas"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasDefinidas;"></tr>
+    </table>
+  </div>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+</div>

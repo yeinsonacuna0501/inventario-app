@@ -1,0 +1,111 @@
+<p-toast></p-toast>
+<div class="card" style="padding: 1.5rem; max-width: 1200px; margin: 1.5rem auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); overflow: hidden;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div style="flex: 1; min-width: 250px;">
+      <h2 style="margin: 0; color: #0f172a; font-size: 1.6rem; font-weight: 700; line-height: 1.2;">Sistema de Control de Inventarios</h2>
+    </div>
+    <p-button label="Registrar Producto" icon="pi pi-plus" severity="success" (onClick)="abrirFormularioNuevo()" styleClass="p-button-md" [style]="{'white-space': 'nowrap'}"></p-button>
+  </div>
+
+  <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 260px; position: relative; width: 100%;">
+      <input type="text" pInputText [ngModel]="filtroNombre()" (ngModelChange)="filtroNombre.set($event); buscar()" placeholder="Buscar por nombre del producto..." style="width: 100%; padding-left: 2.5rem;" />
+      <i class="pi pi-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+    </div>
+    
+    <div style="flex: 1; min-width: 200px; max-width: 240px; width: 100%;">
+      <p-datepicker [ngModel]="filtroFecha()" (ngModelChange)="filtroFecha.set($event); buscar()" placeholder="Filtrar por fecha" dateFormat="yy-mm-dd" [style]="{'width':'100%'}"></p-datepicker>
+    </div>
+    
+    <p-button label="Limpiar" icon="pi pi-filter-slash" [outlined]="true" severity="secondary" (onClick)="limpiar()" [style]="{'height': '44px', 'min-width': '110px'}"></p-button>
+  </div>
+
+  <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <p-table [value]="productos()" [paginator]="true" [rows]="5" responsiveLayout="scroll" styleClass="p-datatable-sm" [style]="{'min-width': '850px'}">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 70px;">ID</th>
+          <th style="min-width: 150px;">Nombre</th>
+          <th style="min-width: 220px;">Descripción</th>
+          <th style="width: 120px;">Stock</th>
+          <th style="width: 140px;">Precio</th>
+          <th style="width: 200px; text-align: center;">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-producto>
+        <tr>
+          <td><span style="color: #64748b;">{{ producto.id }}</span></td>
+          <td><strong style="color: #0f172a;">{{ producto.nombre }}</strong></td>
+          <td>
+            <div style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #475569;">
+              {{ producto.descripcion }}
+            </div>
+          </td>
+          <td>
+            <span [style.color]="producto.cantidad < 5 ? '#ef4444' : '#10b981'" style="font-weight: 700; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block; white-space: nowrap;">
+              {{ producto.cantidad }} uds
+            </span>
+          </td>
+          <td><span style="font-weight: 600; color: #0f172a; white-space: nowrap;">{{ producto.precio | currency:'USD' }}</span></td>
+          <td>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+              <p-button icon="pi pi-search" [outlined]="true" severity="info" [rounded]="true" (onClick)="verProducto(producto)"></p-button>
+              <p-button icon="pi pi-pencil" [outlined]="true" severity="warn" [rounded]="true" (onClick)="abrirFormularioEditar(producto)"></p-button>
+              <p-button label="Descontar" icon="pi pi-minus" severity="danger" [rounded]="true" [disabled]="producto.cantidad <= 0" (onClick)="descontarStock(producto.id)" size="small"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog [visible]="mostrarFormularioModal()" (visibleChange)="mostrarFormularioModal.set($event)" [autofocus]="false" [header]="esModoEdicion() ? '📝 Editar Producto' : '🚀 Registrar Nuevo Producto'" [modal]="true" [style]="{width: '450px', maxWidth: '95vw'}">
+  <div style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1rem 0;" *ngIf="mostrarFormularioModal()">
+    
+    <div>
+      <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Nombre del Producto</label>
+      <input type="text" pInputText [ngModel]="formProducto().nombre" (ngModelChange)="formProducto.set({...formProducto(), nombre: $event})" placeholder="Ej: Monitor Gamer" style="width: 100%;" />
+    </div>
+
+    <div>
+      <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Descripción del Producto</label>
+      <input type="text" pInputText [ngModel]="formProducto().descripcion" (ngModelChange)="formProducto.set({...formProducto(), descripcion: $event})" placeholder="Ej: Dispositivo inalámbrico..." style="width: 100%;" />
+    </div>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 140px;">
+        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Precio</label>
+        <p-inputNumber [ngModel]="formProducto().precio" (ngModelChange)="formProducto.set({...formProducto(), precio: $event})" mode="currency" currency="USD" locale="en-US" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+      </div>
+      
+      <div style="flex: 1; min-width: 140px;">
+        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Stock / Cantidad</label>
+        <p-inputNumber [ngModel]="formProducto().stock" (ngModelChange)="formProducto.set({...formProducto(), stock: $event})" [min]="0" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 0.5rem;">
+      <p-button label="Cancelar" [outlined]="true" severity="secondary" (onClick)="mostrarFormularioModal.set(false)"></p-button>
+      <p-button label="Guardar" severity="success" (onClick)="guardarProducto()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [visible]="mostrarLupaModal()" (visibleChange)="mostrarLupaModal.set($event)" header="🔍 Detalle Completo del Producto" [modal]="true" [style]="{width: '400px', maxWidth: '95vw'}" *ngIf="productoSeleccionado()">
+  <div style="padding: 0.5rem 0; line-height: 2; color: #334155;" *ngIf="productoSeleccionado()">
+    <p><strong>ID Interno:</strong> {{ productoSeleccionado()!.id }}</p>
+    <p><strong>Nombre Técnico:</strong> {{ productoSeleccionado()!.nombre }}</p>
+    <p><strong>Descripción:</strong> {{ productoSeleccionado()!.descripcion }}</p>
+    <p><strong>Existencias:</strong> <span style="color:#10b981; font-weight:600;">{{ productoSeleccionado()!.cantidad }} unidades</span></p>
+    <p><strong>Precio:</strong> {{ productoSeleccionado()!.precio | currency:'USD' }}</p>
+    <p><strong>Fecha Registro:</strong> {{ productoSeleccionado()!.fecha_registro | date:'dd/MM/yyyy HH:mm' }}</p>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cerrar" [outlined]="true" severity="secondary" (onClick)="mostrarLupaModal.set(false)"></p-button>
+  </ng-template>
+</p-dialog>
