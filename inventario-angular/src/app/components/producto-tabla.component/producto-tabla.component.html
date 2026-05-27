@@ -63,37 +63,44 @@
 </div>
 
 <p-dialog [visible]="mostrarFormularioModal()" (visibleChange)="mostrarFormularioModal.set($event)" [autofocus]="false" [header]="esModoEdicion() ? '📝 Editar Producto' : '🚀 Registrar Nuevo Producto'" [modal]="true" [style]="{width: '450px', maxWidth: '95vw'}">
-  <div style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1rem 0;" *ngIf="mostrarFormularioModal()">
+  <form [formGroup]="productoForm" (ngSubmit)="guardarProducto()" style="display: flex; flex-direction: column; gap: 1.2rem; padding: 1rem 0;" *ngIf="mostrarFormularioModal()">
     
     <div>
       <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Nombre del Producto</label>
-      <input type="text" pInputText [ngModel]="formProducto().nombre" (ngModelChange)="formProducto.set({...formProducto(), nombre: $event})" placeholder="Ej: Monitor Gamer" style="width: 100%;" />
+      <input type="text" pInputText formControlName="nombre" placeholder="Ej: Monitor Gamer" style="width: 100%;" />
+      <small *ngIf="productoForm.get('nombre')?.touched && productoForm.get('nombre')?.errors?.['required']" style="color: #ef4444; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+        El nombre del producto es obligatorio.
+      </small>
     </div>
 
     <div>
       <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Descripción del Producto</label>
-      <input type="text" pInputText [ngModel]="formProducto().descripcion" (ngModelChange)="formProducto.set({...formProducto(), descripcion: $event})" placeholder="Ej: Dispositivo inalámbrico..." style="width: 100%;" />
+      <input type="text" pInputText formControlName="descripcion" placeholder="Ej: Dispositivo inalámbrico..." style="width: 100%;" />
     </div>
 
     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
       <div style="flex: 1; min-width: 140px;">
         <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Precio</label>
-        <p-inputNumber [ngModel]="formProducto().precio" (ngModelChange)="formProducto.set({...formProducto(), precio: $event})" mode="currency" currency="USD" locale="en-US" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+        <p-inputNumber formControlName="precio" mode="currency" currency="USD" locale="en-US" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+        <small *ngIf="productoForm.get('precio')?.touched && productoForm.get('precio')?.errors?.['min']" style="color: #ef4444; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+          El precio debe ser mayor a 0.
+        </small>
       </div>
       
       <div style="flex: 1; min-width: 140px;">
         <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: #334155;">Stock / Cantidad</label>
-        <p-inputNumber [ngModel]="formProducto().stock" (ngModelChange)="formProducto.set({...formProducto(), stock: $event})" [min]="0" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+        <p-inputNumber formControlName="stock" [min]="0" [style]="{'width': '100%'}" [inputStyle]="{'width': '100%'}"></p-inputNumber>
+        <small *ngIf="productoForm.get('stock')?.touched && productoForm.get('stock')?.errors?.['required']" style="color: #ef4444; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+          El stock es requerido.
+        </small>
       </div>
     </div>
-  </div>
-  
-  <ng-template pTemplate="footer">
-    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 0.5rem;">
-      <p-button label="Cancelar" [outlined]="true" severity="secondary" (onClick)="mostrarFormularioModal.set(false)"></p-button>
-      <p-button label="Guardar" severity="success" (onClick)="guardarProducto()"></p-button>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid #f1f5f9; margin-top: 0.5rem;">
+      <p-button label="Cancelar" type="button" [outlined]="true" severity="secondary" (onClick)="mostrarFormularioModal.set(false)"></p-button>
+      <p-button label="Guardar" type="submit" severity="success" [disabled]="productoForm.invalid"></p-button>
     </div>
-  </ng-template>
+  </form>
 </p-dialog>
 
 <p-dialog [visible]="mostrarLupaModal()" (visibleChange)="mostrarLupaModal.set($event)" header="🔍 Detalle Completo del Producto" [modal]="true" [style]="{width: '400px', maxWidth: '95vw'}" *ngIf="productoSeleccionado()">

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 
 import { ProductoQueryService } from '../../services/producto-query.service';
 import { ProductoCommandService } from '../../services/producto-command.service';
@@ -19,8 +19,9 @@ import { MessageService } from 'primeng/api';
   selector: 'app-producto-tabla',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule, 
     TableModule, 
     ButtonModule, 
     InputTextModule, 
@@ -36,6 +37,7 @@ export class ProductoTablaComponent implements OnInit {
   private readonly queryService = inject(ProductoQueryService);
   private readonly commandService = inject(ProductoCommandService);
   private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
 
   readonly productos = signal<Producto[]>([]);
   readonly filtroNombre = signal<string>('');
@@ -47,17 +49,21 @@ export class ProductoTablaComponent implements OnInit {
   
   readonly productoSeleccionado = signal<Producto | null>(null);
 
-  readonly formProducto = signal({
-    nombre: '',
-    descripcion: '',
-    stock: 0,
-    precio: 0
-  });
+  productoForm: FormGroup;
 
   readonly fechaFiltroIso = computed(() => {
     const fecha = this.filtroFecha();
     return fecha ? new Date(fecha).toISOString().split('T')[0] : '';
   });
+
+  constructor() {
+    this.productoForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(150)]],
+      descripcion: [''],
+      stock: [0, [Validators.required, Validators.min(0)]],
+      precio: [0, [Validators.required, Validators.min(0.01)]]
+    });
+  }
 
   ngOnInit(): void {
     this.buscar();
@@ -77,14 +83,14 @@ export class ProductoTablaComponent implements OnInit {
   abrirFormularioNuevo(): void {
     this.esModoEdicion.set(false);
     this.productoSeleccionado.set(null);
-    this.formProducto.set({ nombre: '', descripcion: '', stock: 0, precio: 0 });
+    this.productoForm.reset({ nombre: '', descripcion: '', stock: 0, precio: 0 });
     this.mostrarFormularioModal.set(true);
   }
 
   abrirFormularioEditar(producto: Producto): void {
     this.esModoEdicion.set(true);
     this.productoSeleccionado.set(producto);
-    this.formProducto.set({
+    this.productoForm.setValue({
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? '',
       stock: producto.cantidad,
@@ -99,7 +105,12 @@ export class ProductoTablaComponent implements OnInit {
   }
 
   guardarProducto(): void {
-    const formularioActual = this.formProducto();
+    if (this.productoForm.invalid) {
+      this.productoForm.markAllAsTouched();
+      return;
+    }
+
+    const formularioActual = this.productoForm.value;
     
     if (this.esModoEdicion() && this.productoSeleccionado()) {
       const id = this.productoSeleccionado()!.id;
