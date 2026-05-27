@@ -1,0 +1,68 @@
+# CONFIGURACIONES GLOBALES Y DEL SITEMA
+
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+
+# ANGULAR & NODE (inventario-angular)
+
+**/node_modules/
+**/.angular/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/.sass-cache/
+**/.eslintcache
+**/.project
+**/.classpath
+**/.settings/
+
+#  .NET 8 & C# (inventario-net)
+
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/VisualStudioWorkspaceDependencies.json
+
+# Archivos de publicación y secretos locales de .NET
+**/publish/
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/.secrets.json
+
+
+# PYTHON & FASTAPI (inventario-python)
+
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Entornos virtuales de Python (Cualquier variación de nombre)
+**/.venv/
+**/venv/
+**/env/
+**/ENV/
+**/env.bak/
+**/venv.bak/
+
+# Archivos de variables de entorno locales
+**/.env
+**/.env.local
+**/.env.development
+
+**/.vscode/
+!**/.vscode/extensions.json
+**/.idea/
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
