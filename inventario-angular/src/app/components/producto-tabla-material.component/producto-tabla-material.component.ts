@@ -95,6 +95,7 @@ export class ProductoTablaMaterialComponent implements OnInit {
         descripcion: resultadoFormulario.descripcion ?? '',
         stock: resultadoFormulario.cantidad ?? 0,
         precio: resultadoFormulario.precio ?? 0,
+        cantidad: resultadoFormulario.cantidad ?? 0,
       };
 
       this.commandService.crear(request).subscribe({

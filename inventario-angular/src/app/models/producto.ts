@@ -18,6 +18,7 @@ export interface CrearProductoRequest {
   descripcion: string;
   stock: number;
   precio: number;
+  cantidad: number;
 }
 
 export interface ActualizarProductoRequest {

@@ -130,7 +130,8 @@ export class ProductoTablaComponent implements OnInit {
         nombre: formularioActual.nombre,
         descripcion: formularioActual.descripcion,
         stock: formularioActual.stock,
-        precio: formularioActual.precio
+        precio: formularioActual.precio,
+        cantidad: formularioActual.stock 
       };
       
       this.commandService.crear(request).subscribe({
